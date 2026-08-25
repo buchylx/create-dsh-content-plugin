@@ -14,7 +14,7 @@ async function listFiles(dir, base = dir) {
     const full = join(dir, entry)
     const st = await stat(full)
     if (st.isDirectory()) out.push(...await listFiles(full, base))
-    else out.push(relative(base, full))
+    else out.push(relative(base, full).replace(/\\/g, '/'))
   }
   return out
 }

@@ -66,7 +66,7 @@ test('generate refuses non-empty directory', async () => {
 
 // Helper
 import { writeFile as _writeFile, mkdir } from 'node:fs/promises'
-async function writeFileDeep(file: string, content: string) {
+async function writeFileDeep(file, content) {
   await mkdir(dirname(file), { recursive: true })
   await _writeFile(file, content, 'utf8')
 }
