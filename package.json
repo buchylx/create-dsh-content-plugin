@@ -1,0 +1,47 @@
+{
+  "name": "create-dsh-content",
+  "version": "0.1.0",
+  "description": "Scaffold a content-automation DSH plugin in seconds — content publishing adapters (Dev.to / Bluesky / Mastodon / GitHub), credential management, cross-platform formatting, and built-in release pipeline.",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "create-dsh-content": "src/cli.js"
+  },
+  "main": "src/cli.js",
+  "files": [
+    "src",
+    "templates"
+  ],
+  "engines": {
+    "node": "^22.19.0 || >=24.0.0"
+  },
+  "scripts": {
+    "test": "node --test",
+    "test:verify": "DSH_SMOKE_VERIFY=1 node --test"
+  },
+  "keywords": [
+    "deepseek",
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "plugin",
+    "scaffold",
+    "create-dsh-content",
+    "content-automation",
+    "crosspost",
+    "bluesky",
+    "devto",
+    "mastodon"
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-github-username/create-dsh-content-plugin.git"
+  },
+  "author": "your-name <your-email@example.com>",
+  "homepage": "https://github.com/your-github-username/create-dsh-content-plugin#readme",
+  "bugs": {
+    "url": "https://github.com/your-github-username/create-dsh-content-plugin/issues"
+  }
+}

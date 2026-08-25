@@ -1,0 +1,5 @@
+# {{PKG_NAME}} bundle layer — applied when a profile lists this bundle
+# (package.json declares `dsh.bundle.patch` pointing at this file).
+- insert:
+    - id: {{PLUGIN_ID}}
+      name: {{PKG_NAME}}
