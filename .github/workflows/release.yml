@@ -17,10 +17,10 @@ jobs:
           node-version: '22'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install and build (no build step — zero deps pure ESM)
+      - name: Verify (version + tests)
         run: |
           node src/cli.js --version
-          node --test test/
+          npm test
 
       - name: Publish to npm
         run: npm publish --access public
