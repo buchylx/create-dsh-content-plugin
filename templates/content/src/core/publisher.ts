@@ -1,16 +1,10 @@
 // Publisher — orchestrates publishing across multiple platform adapters.
 // Each adapter is called independently; failures on one platform do not block others.
 import type { PlatformAdapter, PublishInput, PublishResult } from './types.js'
-import { devtoAdapter } from '../adapters/devto/index.js'
-import { blueskyAdapter } from '../adapters/bluesky/index.js'
-import { mastodonAdapter } from '../adapters/mastodon/index.js'
-import { githubAdapter } from '../adapters/github/index.js'
+{{ADAPTER_IMPORTS}}
 
 const ADAPTERS: Record<string, PlatformAdapter> = {
-  devto: devtoAdapter,
-  bluesky: blueskyAdapter,
-  mastodon: mastodonAdapter,
-  github: githubAdapter,
+{{ADAPTER_REGISTRY}}
 }
 
 export interface PublishOptions {

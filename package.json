@@ -37,11 +37,11 @@
   "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-github-username/create-dsh-content-plugin.git"
+    "url": "https://github.com/blx0102/create-dsh-content-plugin.git"
   },
-  "author": "your-name <your-email@example.com>",
-  "homepage": "https://github.com/your-github-username/create-dsh-content-plugin#readme",
+  "author": "buchylx <buchylx@gmail.com>",
+  "homepage": "https://github.com/blx0102/create-dsh-content-plugin#readme",
   "bugs": {
-    "url": "https://github.com/your-github-username/create-dsh-content-plugin/issues"
+    "url": "https://github.com/blx0102/create-dsh-content-plugin/issues"
   }
 }

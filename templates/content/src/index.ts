@@ -25,7 +25,10 @@ export const inject = ['tools', 'config']
 
 export function apply(ctx: Context) {
   // Read credentials from the profile config (BYOK).
-  const creds: CredentialStore = (ctx.config as any)?.{{PLUGIN_ID}}?.platforms ?? {}
+  // Bracket access handles plugin ids that contain hyphens (e.g. "build-check"),
+  // which would otherwise parse as subtraction. `ctx as any` sidesteps the
+  // cordis Context type not statically declaring the injected `config` service.
+  const creds: CredentialStore = ((ctx as any).config)?.['{{PLUGIN_ID}}']?.platforms ?? {}
   const validation = validateAll(creds)
 
   ctx.tools.register(defineTool({

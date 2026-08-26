@@ -21,6 +21,21 @@ export async function verify({ cfg, targetAbs }) {
   const cwd = dirname(targetAbs)
   const env = process.env
 
+  // Resolve how to invoke the DSH host. Prefer a globally-installed `dsh`
+  // binary: `npx -y @deepseek-ai/dsh` forces npm to install the ~460-package
+  // host tree into the npx cache on every run, and npm's dependency-tree
+  // resolution can hang for many minutes on Windows for this graph. A global
+  // `dsh` (e.g. `pnpm install -g @deepseek-ai/dsh@next`) avoids that entirely.
+  const globalDsh = await which('dsh')
+  if (globalDsh) {
+    console.log(paint(c.dim, `  using global dsh: ${globalDsh}`))
+  } else {
+    console.log(warn('⚠ no global `dsh` on PATH — falling back to `npx -y @deepseek-ai/dsh`. ' +
+      'On Windows this can hang at npm dependency resolution; install pnpm + `pnpm install -g @deepseek-ai/dsh@next` to fix.'))
+  }
+  const dshCmd = globalDsh ? 'dsh' : 'npx'
+  const dshPre = globalDsh ? [] : ['-y', '@deepseek-ai/dsh']
+
   // [1/4] install
   console.log(paint(c.dim, `\n[1/4] ${pm} install  →  ${targetAbs}`))
   let r = await run(pm, ['install'], { cwd: targetAbs, timeout: 300000, env })
@@ -37,7 +52,7 @@ export async function verify({ cfg, targetAbs }) {
   console.log(paint(c.dim, '\n[3/4] dsh plugin add → temp profile'))
   const dshHome = await mkdtemp(join(tmpdir(), 'dsh-verify-'))
   const profile = 'verify'
-  r = await run('npx', ['-y', '@deepseek-ai/dsh', 'plugin', '--profile', profile, 'add', targetAbs], {
+  r = await run(dshCmd, [...dshPre, 'plugin', '--profile', profile, 'add', targetAbs], {
     cwd, timeout: 300000, env: { ...env, DSH_HOME: dshHome },
   })
   if (r.code !== 0) { await rm(dshHome, { recursive: true, force: true }); return fail('dsh plugin add', r) }
@@ -45,7 +60,7 @@ export async function verify({ cfg, targetAbs }) {
 
   // [4/4] dump-config must contain the plugin row
   console.log(paint(c.dim, '\n[4/4] dump-config → check plugin row'))
-  r = await run('npx', ['-y', '@deepseek-ai/dsh', '--profile', profile, '--dump-config'], {
+  r = await run(dshCmd, [...dshPre, '--profile', profile, '--dump-config'], {
     cwd, timeout: 120000, env: { ...env, DSH_HOME: dshHome },
   })
   await rm(dshHome, { recursive: true, force: true })

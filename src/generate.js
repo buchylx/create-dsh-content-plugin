@@ -57,6 +57,17 @@ export async function generate(cfg) {
     throw new Error(`no valid platforms selected from "${cfg.platforms}". Available: ${Object.keys(PLATFORM_TIERS).join(', ')}`)
   }
 
+  // Build per-platform import lines + registry entries for publisher.ts.
+  // The publisher statically imports only the selected adapters — this keeps
+  // the generated project free of references to unselected platform dirs
+  // (which generate.js filters out above).
+  const adapterImports = platformIds
+    .map((id) => `import { ${id}Adapter } from '../adapters/${id}/index.js'`)
+    .join('\n')
+  const adapterRegistry = platformIds
+    .map((id) => `  ${id}: ${id}Adapter,`)
+    .join('\n')
+
   const tokens = {
     PKG_NAME: cfg.name,
     PKG_DESCRIPTION: `${cfg.name} — a content-automation DSH plugin.`,
@@ -71,6 +82,8 @@ export async function generate(cfg) {
     PITFALLS: renderPitfalls(),
     PLATFORM_LIST: renderPlatformList(platformIds),
     PLATFORM_IDS: platformIds.join(','),
+    ADAPTER_IMPORTS: adapterImports,
+    ADAPTER_REGISTRY: adapterRegistry,
   }
 
   const replace = (content) =>
