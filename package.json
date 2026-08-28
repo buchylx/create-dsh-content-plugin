@@ -1,7 +1,7 @@
 {
     "name": "create-dsh-content",
-    "version": "0.3.0",
-    "description": "Scaffold a content-automation DSH plugin in seconds — content publishing adapters (Dev.to / Bluesky / Mastodon / GitHub), credential management, cross-platform formatting, and built-in release pipeline.",
+    "version": "0.4.0",
+    "description": "Scaffold a content-automation DSH plugin in seconds — content publishing adapters (Dev.to / Bluesky / Mastodon / GitHub / LinkedIn), credential management, cross-platform formatting, and built-in release pipeline.",
     "license": "MIT",
     "type": "module",
     "bin": {
@@ -17,7 +17,8 @@
     },
     "scripts": {
         "test": "node --test",
-        "test:verify": "DSH_SMOKE_VERIFY=1 node --test"
+        "test:verify": "DSH_SMOKE_VERIFY=1 node --test",
+        "compat": "node scripts/dsh-compat.mjs"
     },
     "keywords": [
         "deepseek",

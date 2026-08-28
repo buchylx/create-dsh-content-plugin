@@ -27,7 +27,7 @@ npx create-dsh-content
 | `-n, --name <pkg>` | npm package name (derived from dir) |
 | `--plugin-id <id>` | cordis patch row id + plugin `name` export |
 | `--tool-name <name>` | Tool name (default derived from package name) |
-| `--platforms <list>` | Comma-separated platforms: `devto,bluesky,mastodon,github` |
+| `--platforms <list>` | Comma-separated platforms: `devto,bluesky,mastodon,github,linkedin` |
 | `-y, --yes` | Skip prompts, use defaults |
 | `--verify` | After generation: build + install into temp profile + dump-config |
 | `--skip-install` | Skip `pnpm install` inside the generated project |
@@ -39,11 +39,11 @@ npx create-dsh-content
 
 Every generated project ships with:
 
-- **Platform adapter layer** — `PlatformAdapter` interface + stubs for Dev.to / Bluesky / Mastodon / GitHub (BYOK, no platform approval needed from the plugin author)
+- **Platform adapter layer** — `PlatformAdapter` interface + working adapters for Dev.to / GitHub / Bluesky / Mastodon / LinkedIn (BYOK, no platform approval needed from the plugin author; LinkedIn is marked experimental due to OAuth review)
 - **Credential management** — typed credential service with validation (missing / invalid / disabled states)
 - **Cross-platform formatters** — Markdown normalization, auto-split for long posts, result card rendering
 - **Version pinning** — `@deepseek-ai/dsh-tools` pinned to the `next`-tag version (npm `latest` is a stale `0.0.1-rc.1`)
-- **Release pipeline** — GitHub Actions: lint → build → publish → topic-tag → awesome/dsh-index submission template
+- **Release pipeline** — `--with-ci` (default on) drops a GitHub Actions workflow into the generated project: type-check → build → publish to npm on a `v*` tag
 - **Pitfall guardrails** — the 10 real-world pitfalls from the verified spike, baked into the generated README
 
 ## Why a domain scaffold?
@@ -57,6 +57,11 @@ Read the full design rationale in [`docs/DESIGN.md`](docs/DESIGN.md).
 ```sh
 node src/cli.js --help
 node --test test/
+
+# After a @deepseek-ai/dsh-* release: is it just a version refresh, or do we
+# need to adapt the template? Compile-checks the current template against the
+# current `next` DSH packages.
+node scripts/dsh-compat.mjs    # or: pnpm run compat
 ```
 
 ## License
