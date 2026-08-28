@@ -33,6 +33,7 @@ async function main() {
 
   // [0] resolve current versions + scaffold the current template.
   let versions
+  let projectDir
   try {
     section('0/3')
     const result = await generate({
@@ -46,6 +47,7 @@ async function main() {
       withCI: false,
     })
     versions = result.versions
+    projectDir = result.targetAbs
   } catch (e) {
     console.error(err(`✘ scaffold failed: ${e?.message || String(e)}`))
     await rm(tmp, { recursive: true, force: true })
@@ -69,9 +71,10 @@ async function main() {
   }
   console.log(paint(c.dim, `  pm: ${pm} (${pm === 'pnpm' ? pnpmPath : npmPath})`))
 
-  // [1/3] install.
+  // [1/3] install. `projectDir` is the scaffolded plugin (result.targetAbs),
+  // NOT the temp root — installing in the root would fail with ENOENT.
   section('1/3 install')
-  let r = await run(pm, ['install'], { cwd: tmp, timeout: 300000 })
+  let r = await run(pm, ['install'], { cwd: projectDir, timeout: 300000 })
   if (r.code !== 0) {
     console.log(err('✘ install failed.'))
     if (r.stderr?.trim()) console.log(paint(c.dim, r.stderr.trim().slice(-2000)))
@@ -83,7 +86,7 @@ async function main() {
 
   // [2/3] typecheck against the current template.
   section('2/3 typecheck (tsc --noEmit)')
-  r = await run(pm, ['run', 'typecheck'], { cwd: tmp, timeout: 180000 })
+  r = await run(pm, ['run', 'typecheck'], { cwd: projectDir, timeout: 180000 })
   if (r.code !== 0) {
     console.log(err('✘ typecheck FAILED.'))
     if (r.stdout?.trim()) console.log(paint(c.dim, r.stdout.trim().slice(-4000)))
