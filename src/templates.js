@@ -1,4 +1,4 @@
-// Template registry + shared metadata for create-dsh-content.
+﻿// Template registry + shared metadata for create-dsh-content.
 
 export const TEMPLATES = ['content']
 
@@ -19,6 +19,7 @@ export const PLATFORM_TIERS = {
   'bluesky':  { tier: 0, label: 'Bluesky',    type: 'post',    requiresAuth: true,  maxChars: 300, supportsThread: true },
   'mastodon': { tier: 0, label: 'Mastodon',   type: 'post',    requiresAuth: true,  maxChars: 500, supportsThread: true },
   'github':   { tier: 0, label: 'GitHub',     type: 'gist',    requiresAuth: true,  maxChars: null },
+  'linkedin': { tier: 0, label: 'LinkedIn',   type: 'post',    requiresAuth: true,  maxChars: 3000, supportsThread: false },
 }
 
 export const DEFAULT_PLATFORMS = ['devto', 'bluesky']
