@@ -68,13 +68,14 @@ create-dsh-content (脚手架本体，JS, 零依赖)
 
 **问题**：上来就做 10 个平台，每个都浅，维护成本爆炸。
 
-**决策**：按「开放 · 免费 · 免审批」程度分四级，v1 只做 Tier-0：
-- **Tier-0**（v1 内置）：Dev.to · Bluesky · Mastodon · GitHub
-- **Tier-1**（可选适配器）：Kit · Reddit
-- **Tier-2**（付费墙）：Hashnode · X(Twitter)
-- **Tier-3**（不做）：LinkedIn · Meta（合作制/硬审核）
+**决策**：按「开放 · 免费 · 免审批」程度分四级，v1 只做 **Tier-0**（已实装）：
+- **Tier-0**（v1 内置，已实装 `--platforms` 可选）：Dev.to · GitHub · Bluesky · Mastodon · LinkedIn
+  - LinkedIn 适配器也已完整实装，但因 OAuth 应用审核接入成本高，标记为「实验性」——不在旗舰路线，读者不要误以为尚未支持。
+- **Tier-1**（路线图，未实装）：Kit · Reddit
+- **Tier-2**（付费墙，路线图）：Hashnode · X(Twitter)
+- **Tier-3**（未来，硬审核）：Meta（合作制）
 
-**后果**：v1 聚焦在 4 个最可控的平台上，保证质量；其他平台按需扩展。
+**后果**：所有 Tier-0 适配器在 `--platforms` 里被选中即生成对应代码；路线图平台在仓库中还没有适配器目录，因此不会被生成任何代码。tier 分级用来指导「先做哪些」，而非运行时过滤——实际能力以 `PLATFORM_TIERS` 注册表为准。
 
 ### 3. 生成时裁剪适配器
 

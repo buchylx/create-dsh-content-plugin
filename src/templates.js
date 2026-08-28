@@ -1,4 +1,4 @@
-﻿// Template registry + shared metadata for create-dsh-content.
+// Template registry + shared metadata for create-dsh-content.
 
 export const TEMPLATES = ['content']
 
@@ -13,13 +13,18 @@ export const TEMPLATE_META = {
   },
 }
 
-// Platform tiers — adapters are bundled only for Tier-0; Tier-1+ are optional.
+// Platform registry. `tier: 0` = shipped built-in adapters bundled at generate
+// time: the `content` template includes every dir under
+// `templates/content/src/adapters/` that the user selects via `--platforms`.
+// Higher tiers are roadmap-only — no adapter dir exists yet, so nothing is
+// generated for them. (Prior docs implied LinkedIn was "not doing"; it is in
+// fact fully implemented and bundled, just noted as higher-friction below.)
 export const PLATFORM_TIERS = {
   'devto':    { tier: 0, label: 'Dev.to',     type: 'article', requiresAuth: true,  maxChars: null },
   'bluesky':  { tier: 0, label: 'Bluesky',    type: 'post',    requiresAuth: true,  maxChars: 300, supportsThread: true },
   'mastodon': { tier: 0, label: 'Mastodon',   type: 'post',    requiresAuth: true,  maxChars: 500, supportsThread: true },
   'github':   { tier: 0, label: 'GitHub',     type: 'gist',    requiresAuth: true,  maxChars: null },
-  'linkedin': { tier: 0, label: 'LinkedIn',   type: 'post',    requiresAuth: true,  maxChars: 3000, supportsThread: false },
+  'linkedin': { tier: 0, label: 'LinkedIn',   type: 'post',    requiresAuth: true,  maxChars: 3000, supportsThread: false, note: 'requires OAuth app review — higher friction than the other Tier-0 platforms.' },
 }
 
 export const DEFAULT_PLATFORMS = ['devto', 'bluesky']

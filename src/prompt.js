@@ -74,7 +74,7 @@ export async function runWizard(initial) {
     }
     if (!result.platforms) {
       const defaultPs = DEFAULT_PLATFORMS.join(',')
-      const ps = await ask(`${paint(c.bold, '平台 platforms')} [devto/bluesky/mastodon/github] (${defaultPs}): `)
+      const ps = await ask(`${paint(c.bold, '平台 platforms')} [devto/bluesky/mastodon/github/linkedin] (${defaultPs}): `)
       result.platforms = ps || defaultPs
     }
 

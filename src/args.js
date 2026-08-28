@@ -38,7 +38,7 @@ ${paint(c.cyan, 'Options / 选项')}
       --plugin-id <id>       cordis patch row id + plugin name export (默认由包名推导)
       --tool-name <name>     Tool name (默认由包名推导)
       --platforms <list>     Comma-separated platforms (平台列表，逗号分隔)
-                             devto,bluesky,mastodon,github
+                             devto,bluesky,mastodon,github,linkedin
                              (default: devto,bluesky)
       --with-ci              Include GitHub Actions release pipeline (默认开启)
   -y, --yes                  Skip prompts, use defaults (跳过向导用默认值)
