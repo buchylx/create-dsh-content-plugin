@@ -30,11 +30,20 @@ export async function exists(p) {
 // Callers may override `shell` via opts if needed.
 export function run(cmd, args, opts = {}) {
   return new Promise((resolve) => {
-    const child = spawn(cmd, args, {
-      stdio: ['ignore', 'pipe', 'pipe'],
-      shell: process.platform === 'win32',
-      ...opts,
-    })
+    let child
+    try {
+      child = spawn(cmd, args, {
+        stdio: ['ignore', 'pipe', 'pipe'],
+        shell: process.platform === 'win32',
+        ...opts,
+      })
+    } catch (e) {
+      // spawn can throw synchronously — e.g. EPERM when the environment blocks
+      // piped stdio (sandbox), or a missing command. Treat as a spawn failure
+      // and never throw, matching the "never throw" contract of this helper.
+      resolve({ code: -1, stdout: '', stderr: String(e?.message || e) })
+      return
+    }
     let out = ''
     let errout = ''
     child.stdout.on('data', (d) => { out += d })
