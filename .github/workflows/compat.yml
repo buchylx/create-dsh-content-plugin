@@ -1,0 +1,65 @@
+name: DSH compat check
+
+on:
+  schedule:
+    - cron: '0 6 1 * *'          # 每月 1 日 06:00 UTC，自动提醒 DSH 是否需适配
+  workflow_dispatch: {}          # 手动触发：Actions → Run workflow
+  pull_request:
+    paths:
+      - 'templates/content/**'
+      - 'scripts/dsh-compat.mjs'
+
+permissions:
+  issues: write
+
+jobs:
+  compat:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      # Capture the real exit code without failing the step, so we can branch
+      # on drift (1) vs inconclusive (2) vs pass (0).
+      - name: Run dsh-compat
+        id: compat
+        run: |
+          set +e
+          node scripts/dsh-compat.mjs
+          echo "code=$?" >> "$GITHUB_OUTPUT"
+          exit 0
+
+      - name: Alert on API drift
+        if: steps.compat.outputs.code == '1'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = 'API drift detected: DSH update needs template adaptation'
+            const q = `repo:${context.repo.owner}/${context.repo.repo} in:title is:issue "${title}"`
+            const { data } = await github.rest.search.issues({ q })
+            if (data.total_count > 0) {
+              console.log('An open issue already exists — skipping.')
+              return
+            }
+            await github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title,
+              body: [
+                'The DSH compat check failed (code 1 = API drift).',
+                '',
+                'This means the **current template** no longer compiles against the latest `@deepseek-ai/dsh-*` packages.',
+                '',
+                'Please adapt `templates/content/src` (`defineTool` / `inject` / `apply(ctx, config)` / `cordis.patch.yml`) and re-release the scaffold, or regenerate a plugin to see the exact errors.',
+                '',
+                'Local reproduction: `npm run compat`.',
+              ].join('\n'),
+              labels: ['dsh-compat', 'bug'],
+            })
+
+      - name: Note inconclusive
+        if: steps.compat.outputs.code == '2'
+        run: echo "Compat check inconclusive (deps could not be installed) — verify manually."

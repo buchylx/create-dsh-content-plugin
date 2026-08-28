@@ -13,6 +13,9 @@ node --test test/
 
 # Generate a test project and verify it loads
 node src/cli.js test-output --platforms devto,bluesky --verify
+
+# After a @deepseek-ai/dsh-* release, decide refresh-vs-adapt in one command
+node scripts/dsh-compat.mjs
 ```
 
 ## Project Structure
