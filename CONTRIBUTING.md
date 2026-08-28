@@ -52,7 +52,9 @@ docs/          # Design docs and architecture
 
 Push a `vX.Y.Z` tag. The Release workflow will:
 1. Run tests
-2. Publish to npm
-3. Add GitHub topic tags
+2. Publish to npm (skips if the version already exists)
+3. Add GitHub topic tags (best-effort; only applies if `TOPIC_TOKEN` is set)
 
-Requires `NPM_TOKEN` secret in the repo settings.
+Requires:
+- `NPM_TOKEN` secret — npm publish.
+- `TOPIC_TOKEN` (optional) — a PAT with `repo` scope (classic) or `Administration: write` (fine-grained); without it, topic tagging is a no-op.
