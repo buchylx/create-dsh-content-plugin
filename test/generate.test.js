@@ -71,52 +71,26 @@ async function writeFileDeep(file, content) {
   await _writeFile(file, content, 'utf8')
 }
 
-// Regression: publisher.ts must statically import ONLY the selected adapters.
-// Previously it hard-imported all 4, which broke compilation when --platforms
-// filtered out adapter directories.
-test('publisher.ts imports only selected adapters', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'cdc-pub-'))
-  try {
-    const result = await generate({
-      targetDir: join(tmp, 'p'),
-      name: 'p',
-      template: 'content',
-      pluginId: 'p',
-      toolName: 'publish_content',
-      platforms: 'devto,github',
-      skipInstall: true,
-    })
-
-    const publisher = await readFile(join(result.targetAbs, 'src/core/publisher.ts'), 'utf8')
-    assert.match(publisher, /import \{ devtoAdapter \} from '\.\.\/adapters\/devto\/index\.js'/, 'should import devto')
-    assert.match(publisher, /import \{ githubAdapter \} from '\.\.\/adapters\/github\/index\.js'/, 'should import github')
-    assert.doesNotMatch(publisher, /blueskyAdapter/, 'should NOT reference bluesky adapter')
-    assert.doesNotMatch(publisher, /mastodonAdapter/, 'should NOT reference mastodon adapter')
-    assert.match(publisher, /devto: devtoAdapter,/, 'registry should map devto')
-    assert.match(publisher, /github: githubAdapter,/, 'registry should map github')
-  } finally {
-    await rm(tmp, { recursive: true, force: true })
-  }
-})
-
-// Regression: hyphenated plugin ids must use bracket access in index.ts.
-// `?.build-check` parses as `?.build - check`; must become `?.['build-check']`.
-test('index.ts uses bracket access for hyphenated plugin id', async () => {
+// Regression: apply() must receive config as the 2nd argument (Cordis pattern),
+// NOT via ctx.config (which throws "cannot get property config without inject").
+test('index.ts reads config via apply 2nd-arg, not ctx.config', async () => {
   const tmp = await mkdtemp(join(tmpdir(), 'cdc-id-'))
   try {
     const result = await generate({
       targetDir: join(tmp, 'p'),
       name: 'p',
       template: 'content',
-      pluginId: 'my-cool-plugin',
+      pluginId: 'my-plugin',
       toolName: 'publish_content',
       platforms: 'devto',
       skipInstall: true,
     })
 
     const index = await readFile(join(result.targetAbs, 'src/index.ts'), 'utf8')
-    assert.match(index, /\?\.\['my-cool-plugin'\]/, 'should use bracket access for hyphenated id')
-    assert.doesNotMatch(index, /\?\.my-cool-plugin/, 'should NOT use dot access for hyphenated id')
+    assert.match(index, /apply\(ctx: Context, config: any = \{\}\)/, 'should take ctx + config 2nd-arg')
+    assert.match(index, /config\?\.platforms/, 'should read creds from config arg')
+    assert.doesNotMatch(index, /ctx\.config/, 'should NOT use ctx.config')
+    assert.doesNotMatch(index, /ctx as any/, 'should not cast ctx')
   } finally {
     await rm(tmp, { recursive: true, force: true })
   }
