@@ -10,7 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      administration: write
     steps:
       - uses: actions/checkout@v4
 
@@ -30,7 +29,14 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
-      - name: Add dsh-plugin topic tag
+      # Setting repository topics needs `administration` (repo admin), which the
+      # default GITHUB_TOKEN cannot be granted — that permission is unsupported,
+      # and requesting it makes the whole workflow fail to start (0 jobs).
+      # Keep this best-effort and non-fatal so it never blocks a published
+      # release. To actually apply topics, pass a PAT with repo scope via a
+      # secret and add `github-token: ${{ secrets.TOPIC_TOKEN }}` below.
+      - name: Add dsh-plugin topic tag (best-effort)
+        continue-on-error: true
         uses: actions/github-script@v7
         with:
           script: |
