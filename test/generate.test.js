@@ -95,3 +95,45 @@ test('index.ts reads config via apply 2nd-arg, not ctx.config', async () => {
     await rm(tmp, { recursive: true, force: true })
   }
 })
+
+test('with-ci gates the .github release pipeline', async () => {
+  const tmp = await mkdtemp(join(tmpdir(), 'cdc-ci-'))
+  try {
+    // Default (withCI undefined) → pipeline included.
+    const withCi = await generate({
+      targetDir: join(tmp, 'a'),
+      name: 'a', template: 'content', pluginId: 'a', toolName: 'x',
+      platforms: 'devto', skipInstall: true,
+    })
+    assert.ok(withCi.files.includes('.github/workflows/release.yml'), 'default should include the release pipeline')
+    assert.match(withCi.files.join('\n'), /cordis\.patch\.yml/, 'still has the cordis bundle patch')
+
+    // withCI:false → pipeline excluded, README reflects off.
+    const noCi = await generate({
+      targetDir: join(tmp, 'b'),
+      name: 'b', template: 'content', pluginId: 'b', toolName: 'x',
+      platforms: 'devto', skipInstall: true, withCI: false,
+    })
+    assert.ok(!noCi.files.includes('.github/workflows/release.yml'), 'withCI=false should drop the release pipeline')
+    const readme = await readFile(join(noCi.targetAbs, 'README.md'), 'utf8')
+    assert.match(readme, /CI \/ release pipeline: `off`/, 'README should report CI off when disabled')
+  } finally {
+    await rm(tmp, { recursive: true, force: true })
+  }
+})
+
+test('credential.ts KNOWN_PLATFORMS only lists selected platforms', async () => {
+  const tmp = await mkdtemp(join(tmpdir(), 'cdc-cred-'))
+  try {
+    const result = await generate({
+      targetDir: join(tmp, 'p'),
+      name: 'p', template: 'content', pluginId: 'p', toolName: 'x',
+      platforms: 'devto,github', skipInstall: true,
+    })
+    const cred = await readFile(join(result.targetAbs, 'src/services/credential.ts'), 'utf8')
+    assert.match(cred, /KNOWN_PLATFORMS = \['devto', 'github'\]/, 'should list only generated platforms')
+    assert.doesNotMatch(cred, /'bluesky'/, 'should NOT reference an unselected platform')
+  } finally {
+    await rm(tmp, { recursive: true, force: true })
+  }
+})

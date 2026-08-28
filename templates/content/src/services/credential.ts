@@ -1,4 +1,4 @@
-﻿// Credential service — validates and manages BYOK credentials.
+// Credential service — validates and manages BYOK credentials.
 // Credentials live in the DSH profile config (ctx.config), never in code.
 
 export interface CredentialStore {
@@ -17,7 +17,10 @@ export interface ValidationSummary {
  * and for the agent to understand which platforms are usable.
  */
 export function validateAll(creds: CredentialStore): ValidationSummary {
-  const KNOWN_PLATFORMS = ['devto', 'bluesky', 'mastodon', 'github', 'linkedin']
+  // Only the platforms that were actually generated (injected by the scaffold)
+  // are validated — not a hardcoded superset. This keeps startup logging in
+  // sync with which adapters exist in this project.
+  const KNOWN_PLATFORMS = [{{PLATFORM_IDS_LIST}}]
   const details: Record<string, { valid: boolean; message?: string }> = {}
   let configured = 0
   let disabled = 0

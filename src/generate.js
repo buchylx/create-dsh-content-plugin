@@ -57,6 +57,10 @@ export async function generate(cfg) {
     throw new Error(`no valid platforms selected from "${cfg.platforms}". Available: ${Object.keys(PLATFORM_TIERS).join(', ')}`)
   }
 
+  // Include the release pipeline (`.github/workflows/release.yml`) unless --with-ci=false.
+  // The flag is a no-op historically; now it actually gates the `.github` dir.
+  const includeCI = cfg.withCI !== false
+
   // Build per-platform import lines + registry entries for publisher.ts.
   // The publisher statically imports only the selected adapters — this keeps
   // the generated project free of references to unselected platform dirs
@@ -82,6 +86,11 @@ export async function generate(cfg) {
     PITFALLS: renderPitfalls(),
     PLATFORM_LIST: renderPlatformList(platformIds),
     PLATFORM_IDS: platformIds.join(','),
+    PLATFORM_IDS_LIST: platformIds.map((id) => `'${id}'`).join(', '),
+    WITH_CI: includeCI ? 'on' : 'off',
+    RELEASE_SECTION: includeCI
+      ? '## Release pipeline\n\nBecause CI is enabled (`--with-ci`), a `v*` tag push triggers `.github/workflows/release.yml`: it installs, type-checks, builds, and publishes this plugin to npm. Set an `NPM_TOKEN` repo secret to publish.'
+      : '(Release pipeline not included — regenerate with `--with-ci` to add it.)',
     ADAPTER_IMPORTS: adapterImports,
     ADAPTER_REGISTRY: adapterRegistry,
   }
@@ -93,7 +102,9 @@ export async function generate(cfg) {
   const allFiles = await listFiles(srcRoot)
 
   // Filter: only include adapters the user selected (skip unselected adapter dirs)
+  // and, when CI is off, drop the `.github` release pipeline entirely.
   const files = allFiles.filter((rel) => {
+    if (!includeCI && rel.startsWith('.github/')) return false
     const m = rel.match(/^src\/adapters\/([a-z0-9_-]+)\//)
     if (!m) return true
     return platformIds.includes(m[1])
